@@ -1,0 +1,14 @@
+# Mayhem target: Khayyam Persian/Jalali date & time parser+formatter (Atheris/libFuzzer harness).
+# The cmd binary is the compiled ELF launcher that drives mayhem/khayyam_fuzz.py; Atheris
+# instruments the khayyam library so the run records coverage (edges).
+project: savantenvs/khayyam
+target: khayyam_fuzz
+
+cmds:
+  - cmd: /mayhem/khayyam_fuzz
+    libfuzzer: true
+
+# Seed corpus of representative Jalali date/time strings + format strings.
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/khayyam_fuzz/testsuite

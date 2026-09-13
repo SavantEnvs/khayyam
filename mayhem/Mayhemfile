@@ -1,0 +1,23 @@
+# Mayhem target: Khayyam Persian/Jalali date & time parser+formatter (Atheris/libFuzzer harness).
+# The cmd binary is the compiled ELF launcher that drives mayhem/khayyam_fuzz.py; Atheris
+# instruments the khayyam library so the run records coverage (edges).
+#
+# Plain command line, no extra libFuzzer flags: adding "-fork=N"/"-ignore_crashes=1" etc. broke
+# the CI dispatch outright (mcode-action failed fast, twice, on the exact same branch/build that
+# passes locally) -- Mayhem manages its own worker/fork orchestration and rejects an explicit
+# override. savantenvs/numbers-parser (another atheris target, healthy in production: edges=404,
+# defects=4) ships the identical bare invocation with no flags, confirming Mayhem's default
+# dispatch already tolerates *occasional* crashes and keeps accumulating coverage on its own --
+# the real fix for khayyam-fuzzer's edges=0 is in the harness (mayhem/khayyam_fuzz.py): lowering
+# how often a single input crashes it, not in this file.
+project: savantenvs/khayyam
+target: khayyam-fuzzer-buggy-mhh-run-1
+
+cmds:
+  - cmd: /mayhem/khayyam_fuzz
+    libfuzzer: true
+
+# Seed corpus of representative Jalali date/time strings + format strings.
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/khayyam-fuzzer-buggy-mhh-run-1/testsuite
